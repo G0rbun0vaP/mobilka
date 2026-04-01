@@ -1,0 +1,84 @@
+package com.example.tsumaps.data
+
+import java.util.PriorityQueue
+
+class AStar {
+    fun heuristic(x1: Int, y1: Int, x2: Int, y2: Int): Int {
+        return Math.abs(x1 - x2) + Math.abs(y1 - y2)
+    }
+    fun isGo(x: Int, y: Int, map: Array<IntArray>): Boolean {
+        if (x < 0 || y < 0 || x >= map.size || y >= map[0].size) {
+            return false
+        }
+        return map[x][y] == 0
+    }
+
+    fun findWay(
+        startX: Int, startY: Int,
+        endX: Int, endY: Int,
+        map: Array<IntArray>
+    ): List<Node> {
+
+        val start = Node(startX, startY)
+        val end = Node(endX, endY)
+
+        val unverifiedList = PriorityQueue<Node>(compareBy { it.f })
+
+        val verifiedList = mutableListOf<Pair<Int, Int>>()
+
+        start.g = 0
+        start.h = heuristic(startX, startY, endX, endY)
+        unverifiedList.add(start)
+
+        while (unverifiedList.isNotEmpty()) {
+            val current = unverifiedList.poll()
+
+            if (current.x == end.x && current.y == end.y) {
+                return reconstructWay(current)
+            }
+
+            verifiedList.add(Pair(current.x, current.y))
+
+            val neighbors = listOf(
+                Pair(current.x - 1, current.y),
+                Pair(current.x + 1, current.y),
+                Pair(current.x, current.y - 1),
+                Pair(current.x, current.y + 1)
+            )
+
+            for ((nx, ny) in neighbors) {
+                if (!isGo(nx, ny, map)) continue
+
+                if (verifiedList.contains(Pair(nx, ny))) continue
+
+                val neighbor = Node(nx, ny)
+
+                val newG = current.g + 1
+
+                if (!unverifiedList.contains(neighbor) || newG < neighbor.g) {
+                    neighbor.parent = current
+                    neighbor.g = newG
+                    neighbor.h = heuristic(nx, ny, endX, endY)
+
+                    if (!unverifiedList.contains(neighbor)) {
+                        unverifiedList.add(neighbor)
+                    }
+                }
+            }
+        }
+
+        return emptyList()
+    }
+
+    fun reconstructWay(end: Node): List<Node> {
+        val way = mutableListOf<Node>()
+        var current: Node? = end
+
+        while (current != null) {
+            way.add(0, current)
+            current = current.parent
+        }
+
+        return way
+    }
+}
