@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 
-fun loadMap(context: Context, resId: Int, blockSize: Int = 6): Array<IntArray> {
+fun loadMap(context: Context, resId: Int, blockSize: Int = 10): Array<IntArray> {
     val bitmap = BitmapFactory.decodeResource(context.resources, resId)
 
     val width = bitmap.getWidth()
